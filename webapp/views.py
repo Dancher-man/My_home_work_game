@@ -6,70 +6,61 @@ def generate_numbers(count_numbers):
     data = list(range(1, 10))
     shuffle(data)
     result = data[:count_numbers]
-    print(result)
     return result
 
 
+def validation(request):
+    try:
+        numbers_post = request.POST.get('numbers').split()
+        numbers = [int(number) for number in numbers_post]
+        context = numbers
+        if len(numbers) != 4:
+            context = f"The amount of integers should equal to 4"
+        elif len(numbers) != len(set(numbers)):
+            context = f"The value should be unique"
+        for i in numbers:
+            if i > 9 or i < 1:
+                context = f"Numbers must be greater than 1 less than 10"
+    except:
+        context = f"The value should be integer"
+
+    return context
+
+
+def get_result(secret_number, numbers):
+    bulls = 0
+    cows = 0
+    for i in range(len(numbers)):
+        if numbers[i] == secret_number[i]:
+            bulls += 1
+        elif numbers[i] in secret_number:
+            cows += 1
+    if bulls == 4:
+        context = "winner"
+    elif bulls or cows:
+        context = f"You got: {bulls} and: {cows}"
+    else:
+        context = "No identical numbers"
+    return context
+
+
 secret_numbers = generate_numbers(4)
+print(secret_numbers)
 
 
-def validation(numbers, numbers_str):
-    pass
-
-
-# Create your views here.
 def index_create(request):
-    context = {}
     if request.method == "GET":
         return render(request, "forms.html")
+    numbers = validation(request)
+
+    if isinstance(numbers, str):
+        context = {
+            'result': validation(request)
+        }
     else:
-        if request.method == "POST":
-            print(request.POST.get('numbers'))
-            try:
-                numbers_post = request.POST.get('numbers').split()
-                numbers = [int(number) for number in numbers_post]
-                print(numbers)
-                if len(numbers) != 4:
-                    context = {
-                        'result': f"The amount of integers should equal to 4"
-                    }
-                elif len(numbers) != len(set(numbers)):
-                    context = {
-                        'result': f"The value should be unique"
-                    }
-                for i in numbers:
-                    if i > 9 or i < 1:
-                        context = {
-                            'result': f"Numbers must be greater than 1 less than 10"
-                        }
-            except:
-                context = {
-                    'result': f"The value should be integer"
-                }
+        result = get_result(numbers, secret_numbers)
+        context = {
+            'result': result
+        }
+
     return render(request, 'forms.html', context)
-# def index_create(request):
-#     context = {}
-#     if request.method == "GET":
-#         return render(request, "create_index.html")
-#     else:
-#         if request.POST.get('choice') == 'add':
-#             query = int(request.POST.get('first_number')) + int(request.POST.get('second_number'))
-#             context = {
-#                 'result': f"Result: {request.POST.get('first_number')} + {request.POST.get('second_number')} = {query}"
-#             }
-#         elif request.POST.get('choice') == 'subtract':
-#             query = int(request.POST.get('first_number')) - int(request.POST.get('second_number'))
-#             context = {
-#                 'result': f"Result: {request.POST.get('first_number')} - {request.POST.get('second_number')} = {query}"
-#             }
-#         elif request.POST.get('choice') == 'multiply':
-#             query = int(request.POST.get('first_number')) * int(request.POST.get('second_number'))
-#             context = {
-#                 'result': f"Result: {request.POST.get('first_number')} * {request.POST.get('second_number')} = {query}"
-#             }
-#         elif request.POST.get('choice') == 'divide':
-#             query = int(request.POST.get('first_number')) / int(request.POST.get('second_number'))
-#             context = {
-#                 'result': f"Result: {request.POST.get('first_number')} / {request.POST.get('second_number')} = {query}"
-#             }
-#     return render(request, 'create_index.html', context)
