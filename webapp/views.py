@@ -52,7 +52,7 @@ def index_create(request):
     if request.method == "GET":
         return render(request, "forms.html")
     numbers = validation(request)
-
+    numbers_value = " ".join([str(n) for n in numbers])
     if isinstance(numbers, str):
         context = {
             'result': validation(request)
@@ -60,7 +60,8 @@ def index_create(request):
     else:
         result = get_result(numbers, secret_numbers)
         context = {
-            'result': result
+            'result': result,
+            'value': numbers_value
         }
 
     return render(request, 'forms.html', context)
